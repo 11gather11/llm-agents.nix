@@ -279,6 +279,11 @@ inputs."nixpkgs".lib.extend (
         githubId = 45086830;
         name = "Jie Zhu";
       };
+      bet4it = {
+        github = "bet4it";
+        githubId = 16643669;
+        name = "Bet4";
+      };
     };
   }
 )
