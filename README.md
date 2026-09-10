@@ -441,6 +441,16 @@ Nix packages for AI coding agents and development tools. Automatically updated d
 
 </details>
 <details>
+<summary><strong>openhands-agent-canvas</strong> - Self-hosted web UI for running OpenHands, Claude Code, Codex and other ACP agents</summary>
+
+- **Source**: source
+- **License**: MIT
+- **Homepage**: https://github.com/OpenHands/OpenHands
+- **Usage**: `nix run github:numtide/llm-agents.nix#openhands-agent-canvas -- --help`
+- **Nix**: [packages/openhands-agent-canvas/package.nix](packages/openhands-agent-canvas/package.nix)
+
+</details>
+<details>
 <summary><strong>orca</strong> - ADE for working with a fleet of parallel coding agents</summary>
 
 - **Source**: binary
