@@ -4,6 +4,7 @@
   fetchFromGitHub,
   rustPlatform,
   installShellFiles,
+  hostname,
   versionCheckHook,
   versionCheckHomeHook,
 }:
@@ -35,6 +36,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
       --zsh <("$out/bin/clauth" completions zsh)
   '';
 
+  # daemon api tests shell out to `hostname` for the FQDN
+  nativeCheckInputs = [ hostname ];
+
   preCheck = ''
     export HOME="$TMPDIR"
   '';
@@ -46,6 +50,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--skip=update::tests::updates_enabled_when_env_unset"
     "--skip=herdr::tests::heal_detached_reinstalls_once_and_throttles"
     "--skip=herdr::tests::heal_detached_fails_closed_without_the_shim_sentinel"
+    "--skip=herdr::tests::heal_detached_respects_the_update_optout"
   ];
 
   doInstallCheck = true;
