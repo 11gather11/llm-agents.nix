@@ -18,20 +18,20 @@ let
   # PyPI ships wheels only, so build from source with maturin.
   nemo-relay = python3.pkgs.buildPythonPackage rec {
     pname = "nemo-relay";
-    version = "0.7.3";
+    version = "0.8.4";
     pyproject = true;
 
     src = fetchFromGitHub {
       owner = "NVIDIA";
       repo = "NeMo-Relay";
       tag = version;
-      hash = "sha256-g7xHQOcccuyHIBiVY5GQHpd1vk99RMwuw923OR4+x3E=";
+      hash = "sha256-5jGFu+DNb1zlCkejY9IPFXkJH1BbY48aNrQhdKisCyg=";
     };
 
     cargoDeps = rustPlatform.fetchCargoVendor {
       inherit src;
       name = "nemo-relay-${version}";
-      hash = "sha256-Re/R/0aSxFNNG9jnbSg+3D0OhQV1mPyxmIJT7ExFaP0=";
+      hash = "sha256-M8FZngHmCN7fns6yXKInAUCT21T1k2q54VChG7MUzAk=";
     };
 
     nativeBuildInputs =
@@ -40,9 +40,7 @@ let
         cargoSetupHook
         maturinBuildHook
       ]
-      # The 0.7.3 tag still carries version 0.7.0 in the workspace Cargo.toml
-      # (pyproject's version is dynamic from it), which fails the metadata
-      # check and hermes' nemo-relay>=0.7.1 requirement.
+      # Tags lag the workspace Cargo.toml version that pyproject derives from.
       ++ [ python3.pkgs.pyprojectVersionPatchHook ];
 
     pythonImportsCheck = [
