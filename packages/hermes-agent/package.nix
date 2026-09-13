@@ -14,8 +14,9 @@
 }:
 
 let
-  # Native (PyO3) runtime for hermes' Relay lifecycle and shared metrics;
+  # Native (PyO3) runtime for hermes' Relay lifecycle and shared metrics.
   # PyPI ships wheels only, so build from source with maturin.
+  # Version is kept in range of hermes' pyproject constraint by update.py.
   nemo-relay = python3.pkgs.buildPythonPackage rec {
     pname = "nemo-relay";
     version = "0.8.4";
@@ -543,7 +544,7 @@ python3.pkgs.buildPythonApplication {
 
   passthru = {
     category = "AI Assistants";
-    inherit hermes-frontend;
+    inherit hermes-frontend nemo-relay;
   };
 
   meta = with lib; {
