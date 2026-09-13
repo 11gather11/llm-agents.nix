@@ -179,6 +179,12 @@ buildGoModule (_finalAttrs: {
 
   modRoot = "apps/backend";
   vendorHash = "sha256-jH8w+6A3LO0S+WTtb2K8GKafi83n3HkwOHXeRcOBQKQ=";
+  # Keep the vendor FOD independent of our source patch so nix-update can
+  # compute vendorHash even when the patch needs a rebase.
+  overrideModAttrs = _: _: {
+    patches = [ ];
+    postPatch = "";
+  };
 
   subPackages = [
     "cmd/kandev"
@@ -196,12 +202,9 @@ buildGoModule (_finalAttrs: {
   patches = [ ./prefer-native-acp-runtimes.patch ];
 
   postPatch = ''
-    # Nix sandboxes do not populate FHS bin directories. Preserve the fake curl
-    # precedence while letting this upstream test find mktemp and shell tools.
-    old_path='"PATH=" + binDir + ":/usr/bin:/bin",'
-    sandbox_path='"PATH=" + binDir + ":" + os.Getenv("PATH"),'
-    substituteInPlace apps/backend/internal/agent/agents/devin_acp_test.go \
-      --replace-fail "$old_path" "$sandbox_path"
+    # Install-script tests run sh with a fake curl first on an FHS PATH.
+    substituteInPlace apps/backend/internal/agent/agents/{devin,goose}_acp_test.go \
+      --replace-fail '":/usr/bin:/bin"' '":" + os.Getenv("PATH")'
   '';
 
   preBuild = ''
