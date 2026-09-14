@@ -594,6 +594,16 @@ Nix packages for AI coding agents and development tools. Automatically updated d
 
 </details>
 <details>
+<summary><strong>grok-bot</strong> - Grok Bot desktop agent — AI teammates that finish the work</summary>
+
+- **Source**: binary
+- **License**: unfree
+- **Homepage**: https://x.ai/bot
+- **Usage**: `nix run github:numtide/llm-agents.nix#grok-bot -- --help`
+- **Nix**: [packages/grok-bot/package.nix](packages/grok-bot/package.nix)
+
+</details>
+<details>
 <summary><strong>hermes-agent</strong> - Self-improving AI agent by Nous Research — creates skills from experience and runs anywhere</summary>
 
 - **Source**: source
