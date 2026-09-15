@@ -9,6 +9,7 @@
   pipewire,
   tesseract5,
   versionCheckHook,
+  codesignCheckHook,
   mkUpdater,
 }:
 
@@ -78,7 +79,12 @@ stdenv.mkDerivation {
   '';
 
   doInstallCheck = true;
-  nativeInstallCheckInputs = [ versionCheckHook ];
+  nativeInstallCheckInputs = [
+    versionCheckHook
+    codesignCheckHook
+  ];
+  codesignTeamId = "433DLLA855";
+  codesignSources = source.darwinSrcs;
 
   passthru.category = "Utilities";
   passthru.updater = mkUpdater (
