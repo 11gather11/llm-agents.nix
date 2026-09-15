@@ -1596,6 +1596,16 @@ Nix packages for AI coding agents and development tools. Automatically updated d
 
 </details>
 <details>
+<summary><strong>auv</strong> - Scriptable computer-use automation CLI that turns GUI operations into reusable commands</summary>
+
+- **Source**: binary
+- **License**: Apache-2.0
+- **Homepage**: https://github.com/moeru-ai/auv
+- **Usage**: `nix run github:numtide/llm-agents.nix#auv -- --help`
+- **Nix**: [packages/auv/package.nix](packages/auv/package.nix)
+
+</details>
+<details>
 <summary><strong>ax</strong> - The AI-era curl: fetch, discover, extract. One command</summary>
 
 - **Source**: source
