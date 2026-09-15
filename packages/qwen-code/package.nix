@@ -16,16 +16,16 @@
 buildNpmPackage (finalAttrs: {
   npmDepsFetcherVersion = 2;
   pname = "qwen-code";
-  version = "0.23.0";
+  version = "0.23.4";
 
   src = fetchFromGitHub {
     owner = "QwenLM";
     repo = "qwen-code";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ZsVfU0znurACbuFySoSSeMTh7Bjrjjj7fqVuj6YpplU=";
+    hash = "sha256-AWmZhul7/p1atYkLZd/pojGaO80gydGfx+mnSP9SHnY=";
   };
 
-  npmDepsHash = "sha256-S9701m85MVA1EJ+tvtHj3NC7M5mrwlRu+mBAqRVmbJA=";
+  npmDepsHash = "sha256-tyLLtckMO/jFQHvdhHBWIE2Gx5vdHJBYHssVdq/abBU=";
   makeCacheWritable = true;
 
   nativeBuildInputs = [
@@ -45,6 +45,10 @@ buildNpmPackage (finalAttrs: {
 
   buildPhase = ''
     runHook preBuild
+
+    # npmConfigHook only patches the root node_modules. Workspaces with
+    # nested .bin (web-shell's vite) keep /usr/bin/env otherwise.
+    patchShebangs packages/*/node_modules
 
     npm run generate
     # The CLI esbuild bundle resolves imports against workspace dist/ output.

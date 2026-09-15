@@ -5,6 +5,7 @@
   fetchPnpmDeps,
   cmake,
   git,
+  jq,
   makeWrapper,
   nodejs,
   # Lockfile predates pnpm 11's stricter overrides/patchedDependencies
@@ -25,19 +26,19 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "openclaw";
-  version = "2026.9.2";
+  version = "2026.9.4";
 
   src = fetchFromGitHub {
     owner = "openclaw";
     repo = "openclaw";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-VRY5aJDmctoblL9hPb//Y3H1+1zWoKa0sbApdHu4saY=";
+    hash = "sha256-xeUf0Emyhen4hnxjhbTI59d02QfB3YWTxhlqNkKuiUA=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     inherit pnpm;
-    hash = "sha256-NUEfkKFibAY3jgM5/e7HtV23nM5UB9iKhy/w8xIIQ+0=";
+    hash = "sha256-n6QytwrnN/TyUzZ6GJqf3ivs9R7+ebsxvXYKoq1xa4o=";
     fetcherVersion = 3;
     prePnpmInstall = stripPatchedDeps;
   };
@@ -74,9 +75,9 @@ stdenv.mkDerivation (finalAttrs: {
   buildPhase = ''
     runHook preBuild
 
+    # gateway and UI are separate builds and must agree on the build ID (#9242)
+    export OPENCLAW_BUILD_TIMESTAMP="$(date -u -d "@$SOURCE_DATE_EPOCH" +%Y-%m-%dT%H:%M:%S.000Z)"
     pnpm build
-
-    # Build the UI
     pnpm ui:build
 
     runHook postBuild
@@ -128,9 +129,14 @@ stdenv.mkDerivation (finalAttrs: {
 
   doInstallCheck = true;
   nativeInstallCheckInputs = [
+    jq
     versionCheckHook
     versionCheckHomeHook
   ];
+  postInstallCheck = ''
+    buildId=$(jq -re .buildId $out/lib/openclaw/dist/build-info.json)
+    grep -rqF "$buildId" $out/lib/openclaw/dist/control-ui/assets
+  '';
   # Upstream tags may carry a "-N" rebuild suffix (e.g. v2026.5.7) while
   # `openclaw --version` only reports the base version. Strip the suffix
   # before versionCheckHook compares it against the command output.
