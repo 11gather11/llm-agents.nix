@@ -1,12 +1,12 @@
 {
-  "version": "0.47.0",
-  "buildId": "c1e7d7a46549956d25f53e9c0b9f59666e03aa3a",
+  "version": "0.53.0",
+  "buildId": "a1ebb5b6cd971e55e5a6092413a3af68ed5a533e",
   "urls": {
-    "x86_64-linux": "https://downloads.cursor.com/grokbot/stable/c1e7d7a46549956d25f53e9c0b9f59666e03aa3a/linux/x64/grok-bot_0.47.0_amd64.deb",
-    "aarch64-linux": "https://downloads.cursor.com/grokbot/stable/c1e7d7a46549956d25f53e9c0b9f59666e03aa3a/linux/arm64/grok-bot_0.47.0_arm64.deb"
+    "x86_64-linux": "https://downloads.cursor.com/grokbot/stable/a1ebb5b6cd971e55e5a6092413a3af68ed5a533e/linux/x64/grok-bot_0.53.0_amd64.deb",
+    "aarch64-linux": "https://downloads.cursor.com/grokbot/stable/a1ebb5b6cd971e55e5a6092413a3af68ed5a533e/linux/arm64/grok-bot_0.53.0_arm64.deb"
   },
   "hashes": {
-    "x86_64-linux": "sha256-EcoPUaU1uXr1GjUq35wPns0uGwQwpprpRRtoinoGWAg=",
-    "aarch64-linux": "sha256-g2+NGdOCbGVzwxrEXHqbeXq8czga4NKx56ja5UEOfkY="
+    "x86_64-linux": "sha256-Wq3FNsrRb85ctbmH0+oIbfUodN5H0QGgyZt1RZLNKoM=",
+    "aarch64-linux": "sha256-OTqCPUzUVOt5U/y9CIU9atl6iMbYkFEuCSknqtRcn5k="
   }
 }
