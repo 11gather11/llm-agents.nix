@@ -1510,11 +1510,11 @@ Nix packages for AI coding agents and development tools. Automatically updated d
 
 </details>
 <details>
-<summary><strong>docker-sbx</strong> - Safe environments for agents</summary>
+<summary><strong>docker-sbx</strong> - Docker Sandboxes: run coding agents in microVMs with controlled filesystem and network access</summary>
 
 - **Source**: binary
 - **License**: unfree
-- **Homepage**: https://docs.docker.com/reference/cli/sbx/
+- **Homepage**: https://docs.docker.com/ai/sandboxes/
 - **Usage**: `nix run github:numtide/llm-agents.nix#docker-sbx -- --help`
 - **Nix**: [packages/docker-sbx/package.nix](packages/docker-sbx/package.nix)
 

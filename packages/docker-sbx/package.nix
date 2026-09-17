@@ -5,7 +5,7 @@
   stdenvNoCC,
   installShellFiles,
   formatelf,
-  makeWrapper,
+  makeBinaryWrapper,
   gccForLibs,
   e2fsprogs,
   lz4,
@@ -16,6 +16,7 @@
   mkUpdater,
 }:
 let
+  inherit (stdenvNoCC.hostPlatform) isLinux;
   source = platformSource {
     hashesFile = ./hashes.json;
     platforms = {
@@ -33,68 +34,67 @@ stdenvNoCC.mkDerivation {
   strictDeps = true;
   __structuredAttrs = true;
 
-  sourceRoot = if stdenvNoCC.hostPlatform.isDarwin then "." else null;
+  # The darwin tarball has no top-level directory.
+  sourceRoot = lib.optionalString (!isLinux) ".";
 
   nativeBuildInputs = [
     installShellFiles
-    versionCheckHook
   ]
-  ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [
+  ++ lib.optionals isLinux [
     formatelf
-    makeWrapper
-    e2fsprogs
+    makeBinaryWrapper
   ];
 
-  buildInputs = lib.optionals stdenvNoCC.hostPlatform.isLinux [
+  # mkfs.erofs and libsailor.so are dynamically linked.
+  buildInputs = lib.optionals isLinux [
+    gccForLibs
     lz4
+    xxhash
     zlib
     zstd
-    xxhash
-    gccForLibs
   ];
 
-  dontBuild = true;
+  # The linux install.sh refuses to run without mkfs.ext4 on PATH and touches
+  # /etc/apparmor.d, so lay out <prefix>/{bin,libexec} ourselves. The darwin
+  # tarball already ships that layout plus completions.
+  installPhase = ''
+    runHook preInstall
+  ''
+  + lib.optionalString isLinux ''
+    install -Dm755 -t $out/bin sbx
+    install -Dm755 -t $out/libexec containerd-shim-nerdbox-* mkfs.erofs
+    install -Dm644 -t $out/libexec nerdbox-kernel-* nerdbox-rootfs-*.erofs
+    install -Dm755 -t $out/libexec/lib libsailor.so
+    wrapProgram $out/bin/sbx --prefix PATH : ${lib.makeBinPath [ e2fsprogs ]}
+  ''
+  + lib.optionalString (!isLinux) ''
+    mkdir -p $out
+    cp -r bin libexec $out
+    installShellCompletion \
+      --bash --name sbx.bash completions/bash/sbx \
+      --zsh --name _sbx completions/zsh/_sbx \
+      --fish --name sbx.fish completions/fish/sbx.fish
+  ''
+  + ''
+    runHook postInstall
+  '';
+
+  # sbx writes state under $HOME even for `completion` and `version`.
+  postInstall =
+    lib.optionalString (isLinux && stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform)
+      ''
+        export HOME=$TMPDIR
+        installShellCompletion --cmd sbx \
+          --bash <($out/bin/sbx completion bash) \
+          --zsh <($out/bin/sbx completion zsh) \
+          --fish <($out/bin/sbx completion fish)
+      '';
+
+  nativeInstallCheckInputs = [ versionCheckHook ];
   doInstallCheck = true;
   versionCheckProgramArg = "version";
   versionCheckKeepEnvironment = [ "HOME" ];
-  preVersionCheck = ''
-    export HOME=$TMPDIR
-  '';
-
-  installPhase =
-    if stdenvNoCC.hostPlatform.isLinux then
-      ''
-        runHook preInstall
-
-        PREFIX=$out bash ./install.sh
-
-        wrapProgram $out/bin/sbx \
-          --prefix PATH : ${lib.makeBinPath [ e2fsprogs ]}
-
-        ${lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
-          export HOME=$TMPDIR
-          $out/bin/sbx completion bash > sbx.bash
-          $out/bin/sbx completion fish > sbx.fish
-          $out/bin/sbx completion zsh  > sbx.zsh
-          installShellCompletion sbx.{bash,fish,zsh}
-        ''}
-
-        runHook postInstall
-      ''
-    else
-      ''
-        runHook preInstall
-
-        mkdir -pv $out
-        cp -rv bin libexec $out
-
-        installShellCompletion \
-          --bash --name sbx.bash completions/bash/sbx \
-          --zsh  --name _sbx     completions/zsh/_sbx \
-          --fish --name sbx.fish completions/fish/sbx.fish
-
-        runHook postInstall
-      '';
+  preVersionCheck = "export HOME=$TMPDIR";
 
   passthru.category = "Sandboxing & Isolation";
   passthru.updater = mkUpdater (
@@ -109,20 +109,13 @@ stdenvNoCC.mkDerivation {
   );
 
   meta = {
-    description = "Safe environments for agents";
-    longDescription = ''
-      Docker Sandboxes provides sandboxes with controlled access to your
-      filesystem, network, and tools. This means your agents can work
-      autonomously without putting your machine or data at risk.
-    '';
-    homepage = "https://docs.docker.com/reference/cli/sbx/";
+    description = "Docker Sandboxes: run coding agents in microVMs with controlled filesystem and network access";
+    homepage = "https://docs.docker.com/ai/sandboxes/";
     changelog = "https://github.com/docker/sbx-releases/releases/tag/v${source.version}";
     mainProgram = "sbx";
-    platforms = source.platforms;
+    inherit (source) platforms;
     license = flake.lib.licenses.unfree;
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
-    maintainers = [
-      lib.maintainers.skyesoss
-    ];
+    maintainers = [ lib.maintainers.skyesoss ];
   };
 }
