@@ -5,6 +5,7 @@
   mkUpdater,
   makeWrapper,
   formatelf,
+  libarchive,
   versionCheckHook,
   codesignCheckHook,
 
@@ -63,7 +64,22 @@ stdenv.mkDerivation {
   pname = "terminal-browser";
   inherit (source) version src;
 
-  nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.hostPlatform.isLinux [ formatelf ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [ libarchive ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ formatelf ];
+
+  # The darwin tarball carries macOS metadata as AppleDouble `._*` members.
+  # GNU tar does not recognise them and writes them out as ordinary files
+  # inside the signed app bundle, where codesign sees files the signature does
+  # not cover: `file added: .../Resources/id_FEMININE.lproj/._locale.pak`, and
+  # so "a sealed resource is missing or invalid" for Electron
+  # Framework.framework. macOS then refuses to launch the app as damaged.
+  # bsdtar consumes the metadata instead of materialising it.
+  unpackCmd = lib.optionalString stdenv.hostPlatform.isDarwin ''
+    bsdtar -xf "$curSrc"
+  '';
 
   buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
