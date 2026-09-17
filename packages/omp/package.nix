@@ -140,11 +140,6 @@ stdenv.mkDerivation {
   dontStrip = true;
 
   postPatch = ''
-    # Upstream bug: everything else imports the pi-utils re-export; bare
-    # chalk is only reachable through a devDependency.
-    substituteInPlace packages/coding-agent/src/cli/collab-cli.ts \
-      --replace-fail 'from "chalk"' 'from "@oh-my-pi/pi-utils/chalk"'
-
     # Strip ^ and ~ prefixes: bun resolves range specifiers via the npm
     # registry, which is unreachable in the sandbox.
     for f in package.json packages/*/package.json; do
