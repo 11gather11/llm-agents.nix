@@ -48,7 +48,7 @@ let
     if stdenv.hostPlatform.isDarwin then
       "electron/terminal-browser.app/Contents/MacOS/terminal-browser"
     else
-      "electron/electron";
+      "electron/pixel";
   source = platformSource {
     hashesFile = ./hashes.json;
     platforms = {
